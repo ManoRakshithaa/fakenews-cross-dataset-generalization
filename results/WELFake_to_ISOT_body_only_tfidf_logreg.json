@@ -1,0 +1,50 @@
+{
+  "experiment": "WELFake_to_ISOT_body_only",
+  "train_dataset": "WELFake",
+  "test_dataset": "ISOT",
+  "text_mode": "body_only",
+  "train_rows": 23903,
+  "test_rows": 38478,
+  "accuracy": 0.7489734393679505,
+  "f1": 0.6893712815565204,
+  "classification_report": {
+    "0": {
+      "precision": 0.7336656939040207,
+      "recall": 0.8542640049082071,
+      "f1-score": 0.7893853164998582,
+      "support": 21189.0
+    },
+    "1": {
+      "precision": 0.7763291322613356,
+      "recall": 0.6199317485106137,
+      "f1-score": 0.6893712815565204,
+      "support": 17289.0
+    },
+    "accuracy": 0.7489734393679505,
+    "macro avg": {
+      "precision": 0.7549974130826782,
+      "recall": 0.7370978767094104,
+      "f1-score": 0.7393782990281893,
+      "support": 38478.0
+    },
+    "weighted avg": {
+      "precision": 0.7528353021414452,
+      "recall": 0.7489734393679505,
+      "f1-score": 0.7444468412637397,
+      "support": 38478.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      18101,
+      3088
+    ],
+    [
+      6571,
+      10718
+    ]
+  ],
+  "random_state": 42,
+  "test_size_if_in_domain": null,
+  "model": "TF-IDF (1,2-gram, max_features=20000) + LogisticRegression(class_weight=balanced)"
+}

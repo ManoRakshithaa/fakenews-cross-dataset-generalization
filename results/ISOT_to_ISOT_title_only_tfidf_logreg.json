@@ -1,0 +1,50 @@
+{
+  "experiment": "ISOT_to_ISOT_title_only",
+  "train_dataset": "ISOT",
+  "test_dataset": "ISOT",
+  "text_mode": "title_only",
+  "train_rows": 30782,
+  "test_rows": 7696,
+  "accuracy": 0.939968814968815,
+  "f1": 0.93215859030837,
+  "classification_report": {
+    "0": {
+      "precision": 0.934622467771639,
+      "recall": 0.9579990561585654,
+      "f1-score": 0.9461663947797716,
+      "support": 4238.0
+    },
+    "1": {
+      "precision": 0.9468973747016707,
+      "recall": 0.9178716020821284,
+      "f1-score": 0.93215859030837,
+      "support": 3458.0
+    },
+    "accuracy": 0.939968814968815,
+    "macro avg": {
+      "precision": 0.9407599212366549,
+      "recall": 0.9379353291203469,
+      "f1-score": 0.9391624925440708,
+      "support": 7696.0
+    },
+    "weighted avg": {
+      "precision": 0.9401378820341194,
+      "recall": 0.939968814968815,
+      "f1-score": 0.9398723475003918,
+      "support": 7696.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      4060,
+      178
+    ],
+    [
+      284,
+      3174
+    ]
+  ],
+  "random_state": 42,
+  "test_size_if_in_domain": 0.2,
+  "model": "TF-IDF (1,2-gram, max_features=20000) + LogisticRegression(class_weight=balanced)"
+}
