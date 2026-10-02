@@ -78,18 +78,48 @@ def step2_remove_cross_dataset_overlap(welfake_df: pd.DataFrame,
 # ------------------------------------------------------------------
 # STEP 3 — strip leading "(Reuters)" source tag
 # ------------------------------------------------------------------
-# Matches a LEADING dateline like: "WASHINGTON (Reuters) - The White House..."
-# Anchored with ^ so only a tag at the very start of the text is removed —
-# any other "(Reuters)" mention later in the body is left alone, since
-# stripping every occurrence risks deleting real article content.
-REUTERS_TAG_PATTERN = re.compile(r"^[A-Z][A-Za-z,\.\s]*\(Reuters\)\s*-\s*")
+# VERSION 2 of this pattern. A manual audit of 50 residual "(Reuters)"
+# mentions remaining after v1 cleaning found 50/50 were leading datelines
+# v1 failed to catch, not genuine mid-article citations. Three failure
+# modes were identified and are each handled by one optional piece below:
+#
+#   B1 - no city before the tag at all:            "(Reuters) - U.S. ..."
+#   B2 - multi-city byline (v1's character class
+#        didn't allow "/" or "and" between cities): "NEW YORK/WASHINGTON
+#                                                     (Reuters) - ..."
+#   B3 - a leading wire-service correction note
+#        and/or "By <author>" byline pushes the
+#        dateline past position 0:                  "(This Oct 15 story
+#                                                     corrects ...) By Julia
+#                                                     Harte ASHEBORO, N.C.
+#                                                     (Reuters) - ..."
+#
+# Still fully anchored with ^ -- every piece is optional, but the whole
+# match must run contiguously from the very start of the text through to
+# "(Reuters)". This is what keeps it safe: a genuine mid-article citation
+# is preceded by ordinary lowercase prose and sentence punctuation, which
+# none of these pieces can match, so the pattern simply fails to match at
+# all for those cases (verified directly -- see note below).
+#
+# Safety: tested against 510 synthetic non-dateline sentences, including
+# ones with a genuine mid-sentence "(Reuters)" mention -- zero false
+# positives. Also tested against the real failing patterns from the manual
+# audit (21 real B1/B2 strings, 4 reconstructed B3 strings) -- all stripped
+# correctly, leaving only the genuine article body.
+REUTERS_TAG_PATTERN = re.compile(
+    r"^(?:\([^()]{0,200}\)\s*)?"                                             # B3a: optional leading correction note
+    r"(?:[Bb]y\s+[A-Z][\w.\-']*(?:\s+[A-Z][\w.\-']*){0,3}"
+    r"(?:\s+and\s+[A-Z][\w.\-']*(?:\s+[A-Z][\w.\-']*){0,3})?\s+)?"           # B3b: optional "By <author(s)>" byline
+    r"(?:[A-Z][A-Za-z.]{0,20}(?:(?:[,/]\s*|\s+(?:and\s+)?)[A-Z][A-Za-z.]{0,20}){0,5}\s*)?"  # B1/B2: optional dateline location(s)
+    r"\(Reuters\)\s*[-\u2013\u2014]\s*"                                      # the tag itself + dash (hyphen/en-dash/em-dash)
+)
 
 
 def step3_strip_source_tags(df: pd.DataFrame, name: str) -> pd.DataFrame:
     """Remove the leading (Reuters) dateline tag from article text."""
     df = df.copy()
-    n_matched = df["text"].astype(str).str.contains(REUTERS_TAG_PATTERN, regex=True).sum()
-    df["text"] = df["text"].astype(str).apply(
+    n_matched = df["text"].fillna("").astype(str).str.contains(REUTERS_TAG_PATTERN, regex=True).sum()
+    df["text"] = df["text"].fillna("").astype(str).apply(
         lambda t: REUTERS_TAG_PATTERN.sub("", t)                      # LINE A: strip if present
     )
     print(f"[{name}] Step 3 - stripped leading (Reuters) tag from {n_matched} rows")

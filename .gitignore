@@ -4,3 +4,5 @@ raw_data/
 processed/
 .DS_Store
 audit_output/
+processed_final/
+diagnostics/predictions/

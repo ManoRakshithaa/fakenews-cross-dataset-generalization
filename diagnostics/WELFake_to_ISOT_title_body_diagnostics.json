@@ -1,0 +1,69 @@
+{
+  "experiment": "WELFake_to_ISOT_title_body",
+  "train_dataset": "WELFake",
+  "test_dataset": "ISOT",
+  "mode": "title_body",
+  "eval_set_description": "full ISOT dataset (never seen during training)",
+  "n_test": 38478,
+  "accuracy": 0.7386818441706949,
+  "precision_fake": 0.7411011865084656,
+  "recall_fake": 0.6430678466076696,
+  "f1_fake": 0.6886129262023474,
+  "macro_f1": 0.7317462929455709,
+  "weighted_f1": 0.7361181451805772,
+  "per_class_report": {
+    "REAL(0)": {
+      "precision": 0.7371357982620549,
+      "recall": 0.8166973429609703,
+      "f1-score": 0.7748796596887944,
+      "support": 21189.0
+    },
+    "FAKE(1)": {
+      "precision": 0.7411011865084656,
+      "recall": 0.6430678466076696,
+      "f1-score": 0.6886129262023474,
+      "support": 17289.0
+    },
+    "accuracy": 0.7386818441706949,
+    "macro avg": {
+      "precision": 0.7391184923852603,
+      "recall": 0.7298825947843199,
+      "f1-score": 0.7317462929455709,
+      "support": 38478.0
+    },
+    "weighted avg": {
+      "precision": 0.7389175332116935,
+      "recall": 0.7386818441706949,
+      "f1-score": 0.7361181451805772,
+      "support": 38478.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      17305,
+      3884
+    ],
+    [
+      6171,
+      11118
+    ]
+  ],
+  "confusion_matrix_label_order": [
+    "REAL(0)",
+    "FAKE(1)"
+  ],
+  "actual_class_counts": {
+    "REAL": 21189,
+    "FAKE": 17289
+  },
+  "predicted_class_counts": {
+    "REAL": 23476,
+    "FAKE": 15002
+  },
+  "actual_fake_share": 0.4493216903165445,
+  "predicted_fake_share": 0.3898851291647175,
+  "prediction_imbalance_flag": false,
+  "imbalance_flag_threshold_pp": 0.15,
+  "predictions_csv": "diagnostics/predictions/WELFake_to_ISOT_title_body_predictions.csv",
+  "confusion_matrix_plot": "diagnostics/confusion_matrix_plots/WELFake_to_ISOT_title_body_confusion_matrix.png"
+}

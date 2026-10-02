@@ -1,0 +1,5 @@
+dataset,class,n_raw,raw_beginning_n,raw_beginning_pct,raw_anywhere_n,raw_anywhere_pct,n_cleaned,cleaned_beginning_n,cleaned_beginning_pct,cleaned_anywhere_n,cleaned_anywhere_pct
+WELFake,REAL,35028,18488,52.78,21266,60.71,13424,0,0.0,19,0.14
+WELFake,FAKE,37106,0,0.0,16,0.04,10479,0,0.0,6,0.06
+ISOT,REAL,21417,18488,86.32,21247,99.21,21189,0,0.0,2721,12.84
+ISOT,FAKE,23481,0,0.0,9,0.04,17289,0,0.0,7,0.04
