@@ -1,0 +1,51 @@
+{
+  "experiment": "ISOT_to_ISOT_title_body",
+  "data_version": "processed_final (Reuters-regex-fixed)",
+  "train_dataset": "ISOT",
+  "test_dataset": "ISOT",
+  "text_mode": "title_body",
+  "train_rows": 30782,
+  "test_rows": 7696,
+  "accuracy": 0.981418918918919,
+  "f1": 0.9791878911366614,
+  "classification_report": {
+    "0": {
+      "precision": 0.9780527667522765,
+      "recall": 0.9884379424256725,
+      "f1-score": 0.983217932167586,
+      "support": 4238.0
+    },
+    "1": {
+      "precision": 0.985643129211837,
+      "recall": 0.9728166570271833,
+      "f1-score": 0.9791878911366614,
+      "support": 3458.0
+    },
+    "accuracy": 0.981418918918919,
+    "macro avg": {
+      "precision": 0.9818479479820568,
+      "recall": 0.9806272997264279,
+      "f1-score": 0.9812029116521237,
+      "support": 7696.0
+    },
+    "weighted avg": {
+      "precision": 0.9814633012357952,
+      "recall": 0.981418918918919,
+      "f1-score": 0.9814071367043664,
+      "support": 7696.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      4189,
+      49
+    ],
+    [
+      94,
+      3364
+    ]
+  ],
+  "random_state": 42,
+  "test_size_if_in_domain": 0.2,
+  "model": "TF-IDF (1,2-gram, max_features=20000) + LogisticRegression(class_weight=balanced)"
+}

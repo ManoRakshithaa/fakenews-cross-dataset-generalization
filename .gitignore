@@ -6,3 +6,8 @@ processed/
 audit_output/
 processed_final/
 diagnostics/predictions/
+diagnostics_final/predictions/
+distilbert_results/checkpoints/
+distilbert_results/train_tmp/
+distilbert_results/estimate_tmp/
+distilbert_diagnostics/predictions/

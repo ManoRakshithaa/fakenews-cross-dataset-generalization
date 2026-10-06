@@ -1,0 +1,69 @@
+{
+  "experiment": "WELFake_to_WELFake_title_body",
+  "train_dataset": "WELFake",
+  "test_dataset": "WELFake",
+  "mode": "title_body",
+  "eval_set_description": "20% stratified held-out split of WELFake (random_state=42)",
+  "n_test": 4781,
+  "accuracy": 0.945199749006484,
+  "precision_fake": 0.9261152416356877,
+  "recall_fake": 0.9508587786259542,
+  "f1_fake": 0.9383239171374764,
+  "macro_f1": 0.9445100955653509,
+  "weighted_f1": 0.9452722079046143,
+  "per_class_report": {
+    "REAL(0)": {
+      "precision": 0.9608216051730696,
+      "recall": 0.9407821229050279,
+      "f1-score": 0.9506962739932254,
+      "support": 2685.0
+    },
+    "FAKE(1)": {
+      "precision": 0.9261152416356877,
+      "recall": 0.9508587786259542,
+      "f1-score": 0.9383239171374764,
+      "support": 2096.0
+    },
+    "accuracy": 0.945199749006484,
+    "macro avg": {
+      "precision": 0.9434684234043786,
+      "recall": 0.945820450765491,
+      "f1-score": 0.9445100955653509,
+      "support": 4781.0
+    },
+    "weighted avg": {
+      "precision": 0.9456062657097037,
+      "recall": 0.945199749006484,
+      "f1-score": 0.9452722079046143,
+      "support": 4781.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      2526,
+      159
+    ],
+    [
+      103,
+      1993
+    ]
+  ],
+  "confusion_matrix_label_order": [
+    "REAL(0)",
+    "FAKE(1)"
+  ],
+  "actual_class_counts": {
+    "REAL": 2685,
+    "FAKE": 2096
+  },
+  "predicted_class_counts": {
+    "REAL": 2629,
+    "FAKE": 2152
+  },
+  "actual_fake_share": 0.438402007948128,
+  "predicted_fake_share": 0.4501150386948337,
+  "prediction_imbalance_flag": false,
+  "imbalance_flag_threshold_pp": 0.15,
+  "predictions_csv": "diagnostics_final/predictions/WELFake_to_WELFake_title_body_predictions.csv",
+  "confusion_matrix_plot": "diagnostics_final/confusion_matrix_plots/WELFake_to_WELFake_title_body_confusion_matrix.png"
+}

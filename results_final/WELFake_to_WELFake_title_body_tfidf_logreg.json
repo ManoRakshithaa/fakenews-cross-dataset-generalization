@@ -1,0 +1,51 @@
+{
+  "experiment": "WELFake_to_WELFake_title_body",
+  "data_version": "processed_final (Reuters-regex-fixed)",
+  "train_dataset": "WELFake",
+  "test_dataset": "WELFake",
+  "text_mode": "title_body",
+  "train_rows": 19122,
+  "test_rows": 4781,
+  "accuracy": 0.945199749006484,
+  "f1": 0.9383239171374764,
+  "classification_report": {
+    "0": {
+      "precision": 0.9608216051730696,
+      "recall": 0.9407821229050279,
+      "f1-score": 0.9506962739932254,
+      "support": 2685.0
+    },
+    "1": {
+      "precision": 0.9261152416356877,
+      "recall": 0.9508587786259542,
+      "f1-score": 0.9383239171374764,
+      "support": 2096.0
+    },
+    "accuracy": 0.945199749006484,
+    "macro avg": {
+      "precision": 0.9434684234043786,
+      "recall": 0.945820450765491,
+      "f1-score": 0.9445100955653509,
+      "support": 4781.0
+    },
+    "weighted avg": {
+      "precision": 0.9456062657097037,
+      "recall": 0.945199749006484,
+      "f1-score": 0.9452722079046143,
+      "support": 4781.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      2526,
+      159
+    ],
+    [
+      103,
+      1993
+    ]
+  ],
+  "random_state": 42,
+  "test_size_if_in_domain": 0.2,
+  "model": "TF-IDF (1,2-gram, max_features=20000) + LogisticRegression(class_weight=balanced)"
+}

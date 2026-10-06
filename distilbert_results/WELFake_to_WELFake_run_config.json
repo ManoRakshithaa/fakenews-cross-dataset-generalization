@@ -1,0 +1,48 @@
+{
+  "direction": "WELFake_to_WELFake",
+  "model_name": "distilbert-base-uncased",
+  "config": {
+    "max_length": 256,
+    "batch_size": 8,
+    "eval_batch_size": 16,
+    "gradient_accumulation_steps": 2,
+    "num_train_epochs": 2,
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "seed": 42
+  },
+  "split_description": "20% stratified held-out split of WELFake (random_state=42)",
+  "train_truncation_stats": {
+    "n_examples": 19122,
+    "max_length_used": 256,
+    "n_truncated": 16543,
+    "pct_truncated": 86.51,
+    "mean_token_length": 1049.2717288986507,
+    "median_token_length": 812.0,
+    "p90_token_length": 1932.0,
+    "max_token_length": 118488
+  },
+  "test_truncation_stats": {
+    "n_examples": 4781,
+    "max_length_used": 256,
+    "n_truncated": 4093,
+    "pct_truncated": 85.61,
+    "mean_token_length": 1031.818448023426,
+    "median_token_length": 784.0,
+    "p90_token_length": 1911.0,
+    "max_token_length": 25823
+  },
+  "environment": {
+    "python_version": "3.13.5 | packaged by Anaconda, Inc. | (main, Jun 12 2025, 11:23:37) [Clang 14.0.6 ]",
+    "platform": "macOS-14.6-arm64-arm-64bit-Mach-O",
+    "device_used": "mps",
+    "torch_version": "2.14.1",
+    "transformers_version": "5.18.0",
+    "sklearn_version": "1.9.1",
+    "numpy_version": "2.5.3",
+    "pandas_version": "3.0.6"
+  },
+  "checkpoint_dir": "/Users/rakshi/fakenews-audit/distilbert_results/checkpoints/WELFake_to_WELFake",
+  "training_arguments_dropped": {}
+}

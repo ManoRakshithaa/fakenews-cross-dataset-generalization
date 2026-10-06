@@ -1,0 +1,69 @@
+{
+  "experiment": "ISOT_to_ISOT_title_body",
+  "train_dataset": "ISOT",
+  "test_dataset": "ISOT",
+  "mode": "title_body",
+  "eval_set_description": "20% stratified held-out split of ISOT (random_state=42)",
+  "n_test": 7696,
+  "accuracy": 0.981418918918919,
+  "precision_fake": 0.985643129211837,
+  "recall_fake": 0.9728166570271833,
+  "f1_fake": 0.9791878911366614,
+  "macro_f1": 0.9812029116521237,
+  "weighted_f1": 0.9814071367043664,
+  "per_class_report": {
+    "REAL(0)": {
+      "precision": 0.9780527667522765,
+      "recall": 0.9884379424256725,
+      "f1-score": 0.983217932167586,
+      "support": 4238.0
+    },
+    "FAKE(1)": {
+      "precision": 0.985643129211837,
+      "recall": 0.9728166570271833,
+      "f1-score": 0.9791878911366614,
+      "support": 3458.0
+    },
+    "accuracy": 0.981418918918919,
+    "macro avg": {
+      "precision": 0.9818479479820568,
+      "recall": 0.9806272997264279,
+      "f1-score": 0.9812029116521237,
+      "support": 7696.0
+    },
+    "weighted avg": {
+      "precision": 0.9814633012357952,
+      "recall": 0.981418918918919,
+      "f1-score": 0.9814071367043664,
+      "support": 7696.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      4189,
+      49
+    ],
+    [
+      94,
+      3364
+    ]
+  ],
+  "confusion_matrix_label_order": [
+    "REAL(0)",
+    "FAKE(1)"
+  ],
+  "actual_class_counts": {
+    "REAL": 4238,
+    "FAKE": 3458
+  },
+  "predicted_class_counts": {
+    "REAL": 4283,
+    "FAKE": 3413
+  },
+  "actual_fake_share": 0.44932432432432434,
+  "predicted_fake_share": 0.443477130977131,
+  "prediction_imbalance_flag": false,
+  "imbalance_flag_threshold_pp": 0.15,
+  "predictions_csv": "diagnostics_final/predictions/ISOT_to_ISOT_title_body_predictions.csv",
+  "confusion_matrix_plot": "diagnostics_final/confusion_matrix_plots/ISOT_to_ISOT_title_body_confusion_matrix.png"
+}
