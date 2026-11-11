@@ -395,32 +395,18 @@ def build_torch_dataset(encodings, labels):
 # MODE: estimate
 # ============================================================
 
-def run_time_estimate(direction: str, config: dict, n_probe_steps: int = 20):
-    import torch
-    from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer
+def _is_oom_error(exc: Exception) -> bool:
+    msg = str(exc).lower()
+    return "out of memory" in msg or "mps backend out of memory" in msg or "cuda out of memory" in msg
 
-    train_name, test_name = direction.split("_to_")
-    device = detect_device()
-    print(f"Device detected: {device}")
 
-    set_all_seeds(config["seed"])
-
-    train_df, test_df, split_desc = split_for_direction(train_name, test_name)
-    print(f"[estimate mode] Split: {split_desc}")
-    print(f"[estimate mode] Full training set size: {len(train_df)} (used for realistic per-step timing)")
-
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-    model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=2)
-    model.to(device if device in ("cuda", "mps") else "cpu")
-
-    encodings = tokenizer(
-        train_df["_model_input"].tolist(),
-        truncation=True, padding=True, max_length=config["max_length"],
-    )
-    train_torch_ds = build_torch_dataset(encodings, train_df["label"].tolist())
+def _run_probe_steps(model, train_torch_ds, device, config, n_probe_steps, output_subdir):
+    """Runs the actual timed probe for one (batch_size, grad_accum) setting.
+    Returns elapsed seconds, or raises on genuine failure (OOM caught by caller)."""
+    from transformers import Trainer
 
     args, dropped_args = build_training_arguments(
-        output_dir=str(RESULTS_DIR / "estimate_tmp"),
+        output_dir=str(RESULTS_DIR / output_subdir),
         per_device_train_batch_size=config["batch_size"],
         gradient_accumulation_steps=config["gradient_accumulation_steps"],
         max_steps=n_probe_steps,
@@ -435,24 +421,124 @@ def run_time_estimate(direction: str, config: dict, n_probe_steps: int = 20):
         report_to=[],
     )
     # No eval_dataset is passed to Trainer here (or anywhere in this script)
-    # -- this is a structural leakage guard independent of whatever
-    # eval_strategy parameter name this transformers version uses: with no
-    # eval_dataset configured, periodic evaluation cannot happen regardless.
+    # -- structural leakage guard, independent of eval_strategy naming.
     trainer = Trainer(model=model, args=args, train_dataset=train_torch_ds)
-
-    print(f"\nRunning {n_probe_steps} real training steps to measure timing...")
     start = time.time()
     trainer.train()
     elapsed = time.time() - start
-    time_per_step = elapsed / n_probe_steps
+    return elapsed, dropped_args
 
-    steps_per_epoch = len(train_torch_ds) / (config["batch_size"] * config["gradient_accumulation_steps"])
+
+def run_time_estimate(direction: str, config: dict, n_probe_steps: int = 20):
+    import torch
+    from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+    train_name, test_name = direction.split("_to_")
+    device = detect_device()
+    print(f"Device detected: {device}")
+
+    set_all_seeds(config["seed"])
+
+    train_df, test_df, split_desc = split_for_direction(train_name, test_name)
+    print(f"[estimate mode] Split: {split_desc}")
+    print(f"[estimate mode] Full training set size: {len(train_df)} (used for realistic per-step timing)")
+
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+
+    # --- truncation stats for BOTH datasets, since the 3 remaining
+    # experiments span both as train and/or test sources, not just this
+    # one direction's train set. Cheap (tokenizer-only, no model forward
+    # pass needed), so compute both regardless of which direction is
+    # used for the timing probe below. ---
+    print(f"\nComputing truncation statistics at max_length={config['max_length']} "
+          f"for both datasets (used by all 3 remaining experiments)...")
+    welfake_full = build_text_field(load_clean("WELFake"))
+    isot_full = build_text_field(load_clean("ISOT"))
+    welfake_trunc = compute_truncation_stats(tokenizer, welfake_full["_model_input"], config["max_length"])
+    isot_trunc = compute_truncation_stats(tokenizer, isot_full["_model_input"], config["max_length"])
+    print(f"WELFake (full, {welfake_trunc['n_examples']} rows): "
+          f"{welfake_trunc['pct_truncated']}% truncated (mean token length {welfake_trunc['mean_token_length']:.1f})")
+    print(f"ISOT (full, {isot_trunc['n_examples']} rows): "
+          f"{isot_trunc['pct_truncated']}% truncated (mean token length {isot_trunc['mean_token_length']:.1f})")
+
+    model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=2)
+    model.to(device if device in ("cuda", "mps") else "cpu")
+
+    encodings = tokenizer(
+        train_df["_model_input"].tolist(),
+        truncation=True, padding=True, max_length=config["max_length"],
+    )
+    train_torch_ds = build_torch_dataset(encodings, train_df["label"].tolist())
+
+    # --- OOM-aware probe: try the requested config first. If (and only
+    # if) it fails with an out-of-memory error, try ONE fallback that
+    # halves batch_size and doubles gradient_accumulation_steps (keeps
+    # effective batch size constant at 16, matching the pilot). Both
+    # outcomes are reported explicitly -- nothing is silently changed. ---
+    print(f"\nRunning {n_probe_steps} real training steps to measure timing "
+          f"(batch_size={config['batch_size']}, grad_accum={config['gradient_accumulation_steps']})...")
+    memory_fit_status = "fits_as_configured"
+    actual_config_used = dict(config)
+    try:
+        elapsed, dropped_args = _run_probe_steps(model, train_torch_ds, device, config, n_probe_steps, "estimate_tmp")
+    except RuntimeError as e:
+        if not _is_oom_error(e):
+            raise
+        print(f"\n[OUT OF MEMORY] The configured batch_size={config['batch_size']} / "
+              f"grad_accum={config['gradient_accumulation_steps']} did not fit at max_length=512.")
+        fallback_config = dict(config)
+        fallback_config["batch_size"] = max(1, config["batch_size"] // 2)
+        fallback_config["gradient_accumulation_steps"] = config["gradient_accumulation_steps"] * 2
+        print(f"Trying ONE fallback: batch_size={fallback_config['batch_size']}, "
+              f"grad_accum={fallback_config['gradient_accumulation_steps']} "
+              f"(same effective batch size = {fallback_config['batch_size'] * fallback_config['gradient_accumulation_steps']})...")
+        try:
+            # fresh model instance -- the failed attempt may have left
+            # partial/corrupted state on some backends
+            model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=2)
+            model.to(device if device in ("cuda", "mps") else "cpu")
+            elapsed, dropped_args = _run_probe_steps(
+                model, train_torch_ds, device, fallback_config, n_probe_steps, "estimate_tmp_fallback"
+            )
+            memory_fit_status = "fits_only_with_fallback_batch_size"
+            actual_config_used = fallback_config
+            print(f"Fallback configuration succeeded.")
+        except RuntimeError as e2:
+            if not _is_oom_error(e2):
+                raise
+            print(f"\n[STOPPING] Even the fallback (batch_size={fallback_config['batch_size']}) "
+                  f"ran out of memory at max_length=512. This is a hard hardware constraint, "
+                  f"not something this script will silently work around further.")
+            result = {
+                "direction": direction, "device": device,
+                "max_length_requested": config["max_length"],
+                "memory_fit_status": "does_not_fit",
+                "attempted_configs": [config, fallback_config],
+                "welfake_truncation_stats": welfake_trunc,
+                "isot_truncation_stats": isot_trunc,
+            }
+            RESULTS_DIR.mkdir(exist_ok=True)
+            out_path = RESULTS_DIR / f"{direction}_time_estimate_max512.json"
+            with open(out_path, "w") as f:
+                json.dump(result, f, indent=2)
+            print(f"Saved constraint report: {out_path}")
+            return
+
+    time_per_step = elapsed / n_probe_steps
+    bsz = actual_config_used["batch_size"]
+    ga = actual_config_used["gradient_accumulation_steps"]
+
+    steps_per_epoch = len(train_torch_ds) / (bsz * ga)
     total_steps = steps_per_epoch * config["num_train_epochs"]
     estimated_total_seconds = total_steps * time_per_step
 
     result = {
         "direction": direction,
         "device": device,
+        "memory_fit_status": memory_fit_status,
+        "config_used_for_timing": actual_config_used,
+        "welfake_truncation_stats": welfake_trunc,
+        "isot_truncation_stats": isot_trunc,
         "probe_steps_run": n_probe_steps,
         "measured_time_per_step_seconds": round(time_per_step, 3),
         "train_rows": len(train_df),
@@ -466,22 +552,39 @@ def run_time_estimate(direction: str, config: dict, n_probe_steps: int = 20):
     }
 
     RESULTS_DIR.mkdir(exist_ok=True)
-    out_path = RESULTS_DIR / f"{direction}_time_estimate.json"
+    out_path = RESULTS_DIR / f"{direction}_time_estimate_max{config['max_length']}.json"
     with open(out_path, "w") as f:
         json.dump(result, f, indent=2)
 
-    print(f"\n{'=' * 70}\nTIME ESTIMATE\n{'=' * 70}")
+    print(f"\n{'=' * 70}\nTIME ESTIMATE (max_length={config['max_length']})\n{'=' * 70}")
     print(f"Device: {device}")
-    print(f"Measured: {time_per_step:.3f} sec/step over {n_probe_steps} real steps")
+    print(f"Memory fit status: {memory_fit_status}")
+    if memory_fit_status == "fits_only_with_fallback_batch_size":
+        print(f"  -- requested batch_size={config['batch_size']}/grad_accum={config['gradient_accumulation_steps']} "
+              f"did NOT fit; used batch_size={bsz}/grad_accum={ga} instead (same effective batch size). "
+              f"This must be applied to the real runs too, not just this estimate.")
+    print(f"Measured: {time_per_step:.3f} sec/step over {n_probe_steps} real steps "
+          f"(batch_size={bsz}, grad_accum={ga})")
     print(f"Full run: ~{steps_per_epoch:.0f} steps/epoch x {config['num_train_epochs']} epochs "
           f"= ~{total_steps:.0f} steps")
     print(f"ESTIMATED total training time: {estimated_total_seconds/60:.1f} minutes "
           f"({estimated_total_seconds/3600:.2f} hours)")
     print(f"(This does not include tokenization time, the final evaluation pass, or model saving, "
-          f"which add a smaller, roughly constant amount on top.)")
+          f"which add a smaller, roughly constant amount on top. Also note: this direction's "
+          f"train set has {len(train_df)} rows -- the 3 remaining experiments have different "
+          f"train sizes, see note below.)")
+    print(f"\nTruncation at max_length={config['max_length']}:")
+    print(f"  WELFake (full dataset): {welfake_trunc['pct_truncated']}% truncated")
+    print(f"  ISOT (full dataset):    {isot_trunc['pct_truncated']}% truncated")
     print(f"\nSaved: {out_path}")
     print("\nNo model or results were saved from this probe run -- this was timing-only. "
           "Nothing here touched the test/target dataset.")
+    print("\nNOTE: per-step timing measured here should transfer to the other 3 directions "
+          "(timing depends on batch composition, not which dataset), but TOTAL time scales "
+          "with each direction's actual train-set size:")
+    print("  WELFake -> ISOT   trains on 100% of WELFake (23,903 rows)")
+    print("  ISOT -> ISOT      trains on 80% of ISOT (~30,782 rows)")
+    print("  ISOT -> WELFake   trains on 100% of ISOT (38,478 rows)")
 
 
 # ============================================================

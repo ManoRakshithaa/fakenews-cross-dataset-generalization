@@ -1,0 +1,56 @@
+{
+  "direction": "WELFake_to_WELFake",
+  "device": "mps",
+  "memory_fit_status": "fits_as_configured",
+  "config_used_for_timing": {
+    "max_length": 512,
+    "batch_size": 8,
+    "eval_batch_size": 16,
+    "gradient_accumulation_steps": 2,
+    "num_train_epochs": 2,
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "seed": 42
+  },
+  "welfake_truncation_stats": {
+    "n_examples": 23903,
+    "max_length_used": 512,
+    "n_truncated": 16118,
+    "pct_truncated": 67.43,
+    "mean_token_length": 1045.780780655148,
+    "median_token_length": 804.0,
+    "p90_token_length": 1929.0,
+    "max_token_length": 118488
+  },
+  "isot_truncation_stats": {
+    "n_examples": 38478,
+    "max_length_used": 512,
+    "n_truncated": 16511,
+    "pct_truncated": 42.91,
+    "mean_token_length": 523.2016736836634,
+    "median_token_length": 475.0,
+    "p90_token_length": 940.0,
+    "max_token_length": 14297
+  },
+  "probe_steps_run": 20,
+  "measured_time_per_step_seconds": 21.985,
+  "train_rows": 19122,
+  "steps_per_epoch": 1195.1,
+  "configured_epochs": 2,
+  "estimated_total_steps": 2390.2,
+  "estimated_total_training_time_seconds": 52549.6,
+  "estimated_total_training_time_minutes": 875.8,
+  "estimated_total_training_time_hours": 14.6,
+  "config_used": {
+    "max_length": 512,
+    "batch_size": 8,
+    "eval_batch_size": 16,
+    "gradient_accumulation_steps": 2,
+    "num_train_epochs": 2,
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "seed": 42
+  }
+}

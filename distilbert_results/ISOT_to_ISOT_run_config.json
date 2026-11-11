@@ -1,0 +1,48 @@
+{
+  "direction": "ISOT_to_ISOT",
+  "model_name": "distilbert-base-uncased",
+  "config": {
+    "max_length": 256,
+    "batch_size": 8,
+    "eval_batch_size": 16,
+    "gradient_accumulation_steps": 2,
+    "num_train_epochs": 2,
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "seed": 42
+  },
+  "split_description": "20% stratified held-out split of ISOT (random_state=42)",
+  "train_truncation_stats": {
+    "n_examples": 30782,
+    "max_length_used": 256,
+    "n_truncated": 23979,
+    "pct_truncated": 77.9,
+    "mean_token_length": 523.8807419920732,
+    "median_token_length": 475.0,
+    "p90_token_length": 941.0,
+    "max_token_length": 14297
+  },
+  "test_truncation_stats": {
+    "n_examples": 7696,
+    "max_length_used": 256,
+    "n_truncated": 5964,
+    "pct_truncated": 77.49,
+    "mean_token_length": 520.4855769230769,
+    "median_token_length": 474.0,
+    "p90_token_length": 931.0,
+    "max_token_length": 10313
+  },
+  "environment": {
+    "python_version": "3.13.5 | packaged by Anaconda, Inc. | (main, Jun 12 2025, 11:23:37) [Clang 14.0.6 ]",
+    "platform": "macOS-14.6-arm64-arm-64bit-Mach-O",
+    "device_used": "mps",
+    "torch_version": "2.14.1",
+    "transformers_version": "5.18.0",
+    "sklearn_version": "1.9.1",
+    "numpy_version": "2.5.3",
+    "pandas_version": "3.0.6"
+  },
+  "checkpoint_dir": "/Users/rakshi/fakenews-audit/distilbert_results/checkpoints/ISOT_to_ISOT",
+  "training_arguments_dropped": {}
+}

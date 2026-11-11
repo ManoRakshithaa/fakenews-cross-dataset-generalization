@@ -1,0 +1,67 @@
+{
+  "accuracy": 0.9977910602910602,
+  "precision_fake": 0.9985511445957693,
+  "recall_fake": 0.9965297860034702,
+  "f1_fake": 0.9975394413084383,
+  "macro_f1": 0.9977677166462031,
+  "weighted_f1": 0.9977908526601657,
+  "roc_auc": 0.9998457523450693,
+  "per_class_report": {
+    "REAL(0)": {
+      "precision": 0.9971731448763251,
+      "recall": 0.9988201982067013,
+      "f1-score": 0.9979959919839679,
+      "support": 4238.0
+    },
+    "FAKE(1)": {
+      "precision": 0.9985511445957693,
+      "recall": 0.9965297860034702,
+      "f1-score": 0.9975394413084383,
+      "support": 3458.0
+    },
+    "accuracy": 0.9977910602910602,
+    "macro avg": {
+      "precision": 0.9978621447360472,
+      "recall": 0.9976749921050858,
+      "f1-score": 0.9977677166462031,
+      "support": 7696.0
+    },
+    "weighted avg": {
+      "precision": 0.9977923136691834,
+      "recall": 0.9977910602910602,
+      "f1-score": 0.9977908526601657,
+      "support": 7696.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      4233,
+      5
+    ],
+    [
+      12,
+      3446
+    ]
+  ],
+  "confusion_matrix_label_order": [
+    "REAL(0)",
+    "FAKE(1)"
+  ],
+  "actual_class_counts": {
+    "REAL": 4238,
+    "FAKE": 3458
+  },
+  "predicted_class_counts": {
+    "REAL": 4245,
+    "FAKE": 3451
+  },
+  "n_examples": 7696,
+  "direction": "ISOT_to_ISOT",
+  "train_dataset": "ISOT",
+  "test_dataset": "ISOT",
+  "split_description": "20% stratified held-out split of ISOT (random_state=42)",
+  "train_rows": 30782,
+  "test_rows": 7696,
+  "training_time_minutes": 62.12,
+  "model": "distilbert-base-uncased"
+}
